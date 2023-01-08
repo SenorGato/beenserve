@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -29,24 +28,20 @@ func NewProducts(l *log.Logger) *Products {
 	return &Products{l}
 }
 
-func (p *Products) GetProducts(rw http.ResponseWriter, h *http.Request) {
-	conn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
-		os.Exit(1)
+func (p *Products) GetProducts(db_conn *pgx.Conn) func(http.ResponseWriter, *http.Request) {
+	if db_conn == nil {
+		panic("nil db_conn!")
 	}
-
-	defer conn.Close(context.Background())
-
-	rows, err := conn.Query(context.Background(), "SELECT * FROM products")
-	defer rows.Close()
-	products, err := pgx.CollectRows(rows, pgx.RowToStructByPos[Product])
-	if err != nil {
-		fmt.Printf("Collect rows error: %v", err)
-		return
+	return func(rw http.ResponseWriter, r *http.Request) {
+		rows, err := db_conn.Query(context.Background(), "SELECT * FROM products")
+		defer rows.Close()
+		products, err := pgx.CollectRows(rows, pgx.RowToStructByPos[Product])
+		if err != nil {
+			fmt.Printf("Collect rows error: %v", err)
+			return
+		}
+		d, err := json.Marshal(products)
+		rw.Header().Set("Content-Type", "application/json")
+		rw.Write(d)
 	}
-
-	d, err := json.Marshal(products)
-	rw.Header().Set("Content-Type", "application/json")
-	rw.Write(d)
 }

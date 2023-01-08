@@ -7,6 +7,7 @@ SET search_path TO tealacarte;
 REVOKE ALL ON SCHEMA tealacarte FROM public;
 REVOKE ALL ON DATABASE tealacarte FROM public;
 GRANT ALL PRIVILEGES ON DATABASE tealacarte TO tealacarte;
+ALTER USER tealacarte WITH PASSWORD 'smoke';
 
 DO $$
 BEGIN
