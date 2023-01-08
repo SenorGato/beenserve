@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -12,12 +13,12 @@ import (
 )
 
 type Product struct {
-	Id        int
-	Name      string
-	Price     float32
-	SKU       string
-	CreatedOn pgtype.Timestamptz
-	UpdatedAt pgtype.Timestamptz
+	Id        int                `json:"id,omitempty"`
+	Name      string             `json:"name,omitempty"`
+	Price     float32            `json:"price,omitempty"`
+	SKU       string             `json:"sku,omitempty"`
+	CreatedOn pgtype.Timestamptz `json:"created_on,omitempty"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at,omitempty"`
 }
 
 type Products struct {
@@ -39,18 +40,13 @@ func (p *Products) GetProducts(rw http.ResponseWriter, h *http.Request) {
 
 	rows, err := conn.Query(context.Background(), "SELECT * FROM products")
 	defer rows.Close()
+	products, err := pgx.CollectRows(rows, pgx.RowToStructByPos[Product])
+	if err != nil {
+		fmt.Printf("Collect rows error: %v", err)
+		return
+	}
 
-	var rowSlice []Product
-	for rows.Next() {
-		var r Product
-		err := rows.Scan(&r.Id, &r.Name, &r.Price, &r.SKU, &r.CreatedOn, &r.UpdatedAt)
-		if err != nil {
-			log.Fatal(err)
-		}
-		rowSlice = append(rowSlice, r)
-	}
-	if err := rows.Err(); err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(rowSlice)
+	d, err := json.Marshal(products)
+	rw.Header().Set("Content-Type", "application/json")
+	rw.Write(d)
 }
