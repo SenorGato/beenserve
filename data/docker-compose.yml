@@ -3,7 +3,7 @@ version: '3.8'
 services:
   postgres:
     container_name: tealacarte
-    image: postgres
+    image: tealacarte
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-tealacarte}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-smoke"}

@@ -5,20 +5,8 @@
 CREATE SCHEMA IF NOT EXISTS tealacarte;
 SET search_path TO tealacarte;
 REVOKE ALL ON SCHEMA tealacarte FROM public;
--- REVOKE ALL ON DATABASE tealacarte FROM public;
-
-DO $$
-BEGIN
-    IF EXISTS (
-        SELECT FROM pg_catalog.pg_roles
-        WHERE rolname = 'tealacarte') THEN
-
-        RAISE NOTICE 'Role tealacarte already exists.';
-    ELSE
-        CREATE ROLE tealacarte LOGIN;
-    END IF;
-END$$;
-
+REVOKE ALL ON DATABASE tealacarte FROM public;
+GRANT ALL PRIVILEGES ON DATABASE tealacarte TO tealacarte;
 
 DO $$
 BEGIN

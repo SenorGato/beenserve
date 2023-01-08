@@ -7,3 +7,6 @@ GRANT role to role;
 GRANT CONNNECT ON DATABASE foo TO role;
 REVOKE ALL ON SCHEMA public FROM public;
 
+ToDo:
+Fix secrets properly
+Password for tealacarte not getting set properly

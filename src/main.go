@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/gorilla/mux"
+	_ "github.com/gorilla/mux"
 	"github.com/jackc/pgx/v5"
 )
 
 func main() {
-	sm := mux.NewRouter()
-	// urlExample := "postgres://postgres:docker@localhost:5432/postgre-db"
+	// sm := mux.NewRouter()
+	// urlExample := "postgres://tealacarte:smoke@localhost:5432/tealacarte"
 	conn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
