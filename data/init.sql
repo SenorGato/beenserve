@@ -25,7 +25,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TABLE IF NOT EXISTS tealacarte.products (
-    product_id  integer PRIMARY KEY,
+    product_id  SERIAL PRIMARY KEY,
     name        TEXT,
     price       DECIMAL,
     SKU         sku,

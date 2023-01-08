@@ -7,6 +7,8 @@ GRANT role to role;
 GRANT CONNNECT ON DATABASE foo TO role;
 REVOKE ALL ON SCHEMA public FROM public;
 
+docker build -t tealacarte:1.0
+
 ToDo:
 Fix secrets properly
 Password for tealacarte not getting set properly
