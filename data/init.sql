@@ -1,5 +1,4 @@
 --Tea a la carte DB Provisioning
--- Set permissions, and default schema
 -- Add Customer and Admin view
 
 CREATE SCHEMA IF NOT EXISTS tealacarte;

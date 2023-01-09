@@ -12,12 +12,14 @@ import (
 	"github.com/SenorGato/beenserve/src/handlers"
 	"github.com/gorilla/mux"
 	"github.com/jackc/pgx/v5"
+	"github.com/stripe/stripe-go/v74"
+	//_ "github.com/stripe/stripe-go/v72/checkout/session"
 )
 
 func main() {
+	stripe.Key = "sk_test_51MNgItJUna26uIQEc7yGt2dYnwLjWOrpRSEsnITSK87j3Ff0BB5N7aKs1eOKYwmwEaRNIAnUD7Wz7IWLstq3ovku00vLwGPfEW"
 	l := log.New(os.Stdout, "products", log.LstdFlags)
 	ph := handlers.NewProducts(l)
-
 	sm := mux.NewRouter()
 
 	conn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
@@ -27,6 +29,9 @@ func main() {
 	}
 	getRouter := sm.Methods(http.MethodGet).Subrouter()
 	getRouter.HandleFunc("/", ph.GetProducts(conn))
+
+	stripePostRouter := sm.Methods(http.MethodPost).Subrouter()
+	stripePostRouter.HandleFunc("/create-checkout-session", handlers.CreateCheckoutSession())
 
 	s := http.Server{
 		Addr:         ":9090",
