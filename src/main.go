@@ -19,19 +19,21 @@ import (
 func main() {
 	stripe.Key = "sk_test_51MNgItJUna26uIQEc7yGt2dYnwLjWOrpRSEsnITSK87j3Ff0BB5N7aKs1eOKYwmwEaRNIAnUD7Wz7IWLstq3ovku00vLwGPfEW"
 	l := log.New(os.Stdout, "products", log.LstdFlags)
-	ph := handlers.NewProducts(l)
-	sm := mux.NewRouter()
 
 	conn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
 		os.Exit(1)
 	}
+	sm := mux.NewRouter()
+	ph := handlers.NewProducts(l)
+	ch := handlers.NewCheckout(l)
+
 	getRouter := sm.Methods(http.MethodGet).Subrouter()
 	getRouter.HandleFunc("/", ph.GetProducts(conn))
 
-	stripePostRouter := sm.Methods(http.MethodPost).Subrouter()
-	stripePostRouter.HandleFunc("/create-checkout-session", handlers.CreateCheckoutSession())
+	stripeCheckoutRouter := sm.Methods(http.MethodPost).Subrouter()
+	stripeCheckoutRouter.HandleFunc("/checkout", ch.CreateCheckoutSession)
 
 	s := http.Server{
 		Addr:         ":9090",
