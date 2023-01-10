@@ -32,8 +32,8 @@ func main() {
 	getRouter := sm.Methods(http.MethodGet).Subrouter()
 	getRouter.HandleFunc("/", ph.GetProducts(conn))
 
-	stripeCheckoutRouter := sm.Methods(http.MethodPost).Subrouter()
-	stripeCheckoutRouter.HandleFunc("/checkout", ch.CreateCheckoutSession)
+	stripeCheckoutRouter := sm.Methods(http.MethodGet).Subrouter()
+	stripeCheckoutRouter.HandleFunc("/checkout", ch.CreateCheckoutSession).Methods("GET")
 
 	s := http.Server{
 		Addr:         ":9090",
