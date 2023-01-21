@@ -17,38 +17,55 @@ import (
 )
 
 func main() {
-	stripe.Key = "sk_test_51MNgItJUna26uIQEc7yGt2dYnwLjWOrpRSEsnITSK87j3Ff0BB5N7aKs1eOKYwmwEaRNIAnUD7Wz7IWLstq3ovku00vLwGPfEW"
-	l := log.New(os.Stdout, "products", log.LstdFlags)
+	path, err := os.Getwd()
+	if err != nil {
+		log.Println(err)
+	}
+
+	fmt.Println(path)
+
+	stripe.Key = os.Getenv("STRIPE_KEY")
+	addr := os.Getenv("WEB_SERVER_PORT")
+
+	product_log := log.New(os.Stdout, "Products:", log.LstdFlags)
+	checkout_log := log.New(os.Stdout, "Checkout:", log.LstdFlags)
+	server_log := log.New(os.Stdout, "Server:", log.LstdFlags)
 
 	conn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
 		os.Exit(1)
 	}
+
 	sm := mux.NewRouter()
-	ph := handlers.NewProducts(l)
-	ch := handlers.NewCheckout(l)
 
+	ph := handlers.NewProducts(product_log)
+	ch := handlers.NewCheckout(checkout_log)
+
+	// Database route
 	getRouter := sm.Methods(http.MethodGet).Subrouter()
-	getRouter.HandleFunc("/", ph.GetProducts(conn))
+	getRouter.HandleFunc("/data", ph.GetProducts(conn))
+	// Static Files
+	fs := http.FileServer(http.Dir("../views"))
+	sm.PathPrefix("/").Handler(http.StripPrefix("/views", fs))
 
-	stripeCheckoutRouter := sm.Methods(http.MethodGet).Subrouter()
-	stripeCheckoutRouter.HandleFunc("/checkout", ch.CreateCheckoutSession).Methods("GET")
+	stripeCheckoutRouter := sm.Methods(http.MethodGet, http.MethodOptions).Subrouter()
+	stripeCheckoutRouter.HandleFunc("/checkout", ch.CreateCheckoutSession).Methods("GET", "POST")
 
 	s := http.Server{
-		Addr:         ":9090",
+		Addr:         ":" + addr,
 		Handler:      sm,
-		ErrorLog:     l,
+		ErrorLog:     server_log,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 		IdleTimeout:  120 * time.Second,
 	}
 	go func() {
-		l.Println("Starting server on port 9090.")
+		server_log.Println("Starting server on port 9090.")
 
 		err := s.ListenAndServe()
 		if err != nil {
-			l.Printf("Error starting server: %s\n", err)
+			server_log.Printf("Error starting server: %s\n", err)
 			os.Exit(1)
 		}
 	}()

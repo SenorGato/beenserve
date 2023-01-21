@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -24,12 +23,11 @@ func NewCheckout(l *log.Logger) *Checkout {
 }
 
 func (c *Checkout) CreateCheckoutSession(rw http.ResponseWriter, r *http.Request) {
-	stripe.Key = os.Getenv("TESTSTRIPE_KEY")
+	stripe.Key = os.Getenv("STRIPE_KEY")
 	checkoutTmpl, err := template.ParseFiles("/home/senoraraton/bins/beenserve/views/checkout.html")
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("In Create Checkout")
 	params := &stripe.PaymentIntentParams{
 		Amount:   stripe.Int64(1000),
 		Currency: stripe.String(string(stripe.CurrencyUSD)),

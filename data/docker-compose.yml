@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
     volumes:
       - ./tlc_product_init.sql:/docker-entrypoint-initdb.d/001_init.sql
-      - ./"${PRODUCT_INIT_SCRIPT}":/docker-entrypoint-initdb.d/002data.sql
+      - ./${PRODUCT_DATA_INIT}:/docker-entrypoint-initdb.d/002_data.sql
     ports:
       - "5432:5432"
     restart:

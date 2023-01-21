@@ -1,12 +1,14 @@
 --Tea a la carte DB Provisioning
 -- Add Customer and Admin view
 
+-- PGOPTIONS="-c 'custom.postgres_password=${POSTGRES_PASSWORD}'";
+-- ALTER USER tealacarte WITH PASSWORD (SELECT current_setting('custom.postgres_password'));
+
 CREATE SCHEMA IF NOT EXISTS tealacarte;
 SET search_path TO tealacarte;
 REVOKE ALL ON SCHEMA tealacarte FROM public;
 REVOKE ALL ON DATABASE tealacarte FROM public;
 GRANT ALL PRIVILEGES ON DATABASE tealacarte TO tealacarte;
-ALTER USER tealacarte WITH PASSWORD 'smoke';
 
 DO $$
 BEGIN
