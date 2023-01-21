@@ -17,13 +17,6 @@ import (
 )
 
 func main() {
-	path, err := os.Getwd()
-	if err != nil {
-		log.Println(err)
-	}
-
-	fmt.Println(path)
-
 	stripe.Key = os.Getenv("STRIPE_KEY")
 	addr := os.Getenv("WEB_SERVER_PORT")
 
@@ -45,12 +38,13 @@ func main() {
 	// Database route
 	getRouter := sm.Methods(http.MethodGet).Subrouter()
 	getRouter.HandleFunc("/data", ph.GetProducts(conn))
-	// Static Files
-	fs := http.FileServer(http.Dir("../views"))
-	sm.PathPrefix("/").Handler(http.StripPrefix("/views", fs))
 
 	stripeCheckoutRouter := sm.Methods(http.MethodGet, http.MethodOptions).Subrouter()
 	stripeCheckoutRouter.HandleFunc("/checkout", ch.CreateCheckoutSession).Methods("GET", "POST")
+
+	// Static Files
+	fs := http.FileServer(http.Dir("../views"))
+	sm.PathPrefix("/").Handler(http.StripPrefix("/views", fs))
 
 	s := http.Server{
 		Addr:         ":" + addr,
