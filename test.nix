@@ -10,7 +10,7 @@ stdenv.mkDerivation {
     export DATABASE_HOST="localhost"
     export DATABASE_URL="postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@$DATABASE_HOST:$DATABASE_PORT/$POSTGRES_USER";
     export PRODUCT_DATABASE_INIT="tlc_product_init.sql"
-    export PRODUCT_DATA_INIT="test_tlc_product_data.sql"
+    export PRODUCT_DATA_INJECTION="test_tlc_product_data.sql"
 
     export WEB_SERVER_PORT="9090"
     export STRIPE_KEY="sk_test_51MNgItJUna26uIQEc7yGt2dYnwLjWOrpRSEsnITSK87j3Ff0BB5N7aKs1eOKYwmwEaRNIAnUD7Wz7IWLstq3ovku00vLwGPfEW";

@@ -36,8 +36,8 @@ func main() {
 	ch := handlers.NewCheckout(checkout_log)
 
 	// Database route
-	getRouter := sm.Methods(http.MethodGet).Subrouter()
-	getRouter.HandleFunc("/data", ph.GetProducts(conn))
+	productRouter := sm.Methods(http.MethodGet).Subrouter()
+	productRouter.HandleFunc("/product-data", ph.GetProducts(conn))
 
 	stripeCheckoutRouter := sm.Methods(http.MethodGet, http.MethodOptions).Subrouter()
 	stripeCheckoutRouter.HandleFunc("/checkout", ch.CreateCheckoutSession).Methods("GET", "POST")

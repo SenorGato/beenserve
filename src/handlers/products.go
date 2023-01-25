@@ -12,12 +12,13 @@ import (
 )
 
 type Product struct {
-	Id        int                `json:"id,omitempty"`
-	Name      string             `json:"name,omitempty"`
-	Price     float32            `json:"price,omitempty"`
-	SKU       string             `json:"sku,omitempty"`
-	CreatedOn pgtype.Timestamptz `json:"created_on,omitempty"`
-	UpdatedAt pgtype.Timestamptz `json:"updated_at,omitempty"`
+	Id         int                `json:"id,omitempty"`
+	Name       string             `json:"name,omitempty"`
+	Price      float32            `json:"price,omitempty"`
+	SKU        string             `json:"sku,omitempty"`
+	Image_Path string             `json:"image_path,omitempty"`
+	CreatedOn  pgtype.Timestamptz `json:"created_on,omitempty"`
+	UpdatedAt  pgtype.Timestamptz `json:"updated_at,omitempty"`
 }
 
 type Products struct {
