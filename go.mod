@@ -1,11 +1,11 @@
-module github.com/SenorGato/beenserve
+module github.com/senorgato/beenserve
 
 go 1.19
 
 require (
 	github.com/gorilla/mux v1.8.0
 	github.com/jackc/pgx/v5 v5.2.0
-	github.com/stripe/stripe-go/v74 v74.5.0
+	github.com/stripe/stripe-go/v74 v74.6.0
 )
 
 require (
