@@ -11,11 +11,16 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/jackc/pgx/v5"
+	"github.com/joho/godotenv"
 	"github.com/senorgato/beenserve/server/handlers"
 	"github.com/stripe/stripe-go/v74"
 )
 
 func main() {
+	err := godotenv.Load("../env/test.env")
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 	stripe.Key = os.Getenv("STRIPE_KEY")
 	addr := os.Getenv("WEB_SERVER_PORT")
 
