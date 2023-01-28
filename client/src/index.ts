@@ -4,23 +4,21 @@ async function fetchProducts() {
     return products;
 }
 
-function display_product(src) {
+function display_product(src: string) {
     var img = document.createElement("img");
     img.src = src;
-    document.body.appendChild(img);
+    return img;
 }
 
 async function run() {
     let products = await fetchProducts()
-    show_image(products[0].image_path);
-    //console.log(products);
-    //console.log(products[0]);
+    document.body.appendChild(display_product(products[0].image_path));
         let list = document.createElement("ul");
         for (let x of products) {
             var item = document.createElement("li"); 
             item.innerHTML = x.id + "/" + x.name;
             list.appendChild(item);
         }
-        document.getElementById('stuff').appendChild(list);
+        document.getElementById('stuff')!.appendChild(list);
 };
 run();
