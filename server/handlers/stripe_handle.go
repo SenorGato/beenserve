@@ -45,7 +45,7 @@ type paymentIntentCreateReq struct {
 
 func (c *Checkout) CreateCheckoutSession(rw http.ResponseWriter, r *http.Request) {
 	stripe.Key = os.Getenv("STRIPE_KEY")
-	checkoutTmpl, err := template.ParseFiles("/home/senoraraton/bins/beenserve/client/html/checkout.html")
+	checkoutTmpl, err := template.ParseFiles("./beenserve/client/html/checkout.html")
 	if err != nil {
 		panic(err)
 	}
