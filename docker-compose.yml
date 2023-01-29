@@ -5,13 +5,14 @@ services:
     container_name: tealacarte
     image: postgres
     environment:
+      PGPORT: "6060"
       POSTGRES_USER: "${POSTGRES_USER}"
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
     volumes:
       - ./data/${PRODUCT_DATABASE_INIT}:/docker-entrypoint-initdb.d/001_init.sql
       - ./data/${PRODUCT_DATA_INJECTION}:/docker-entrypoint-initdb.d/002_data.sql
     ports:
-      - "5432:5432"
+      - "6060:6060"
     restart:
       unless-stopped
   beenserve:
