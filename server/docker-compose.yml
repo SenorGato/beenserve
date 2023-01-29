@@ -3,9 +3,7 @@ version: '3.8'
 services:
   beenserve:
     container_name: been_serve
-    image: bs-3:latest
-    # environment:
-    # volumes:
+    image: bs69:latest
     ports:
       - "9090:9090"
     restart:

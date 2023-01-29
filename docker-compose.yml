@@ -1,0 +1,23 @@
+---
+version: '3.8'
+services:
+  postgres:
+    container_name: tealacarte
+    image: postgres
+    environment:
+      POSTGRES_USER: "${POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+    volumes:
+      - ./data/${PRODUCT_DATABASE_INIT}:/docker-entrypoint-initdb.d/001_init.sql
+      - ./data/${PRODUCT_DATA_INJECTION}:/docker-entrypoint-initdb.d/002_data.sql
+    ports:
+      - "5432:5432"
+    restart:
+      unless-stopped
+  beenserve:
+    container_name: been_serve
+    image: bs69:latest
+    ports:
+      - "9090:9090"
+    restart:
+      unless-stopped
