@@ -34,6 +34,8 @@ func (p *Products) GetProducts(db_conn *pgx.Conn) func(http.ResponseWriter, *htt
 		panic("nil db_conn!")
 	}
 	return func(rw http.ResponseWriter, r *http.Request) {
+		rw.Header().Set("Access-Control-Allow-Origin", "*")
+		rw.Header().Set("Access-Control-Max-Age", "86400")
 		rows, err := db_conn.Query(context.Background(), "SELECT * FROM products")
 		defer rows.Close()
 		products, err := pgx.CollectRows(rows, pgx.RowToStructByPos[Product])
