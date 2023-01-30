@@ -22,24 +22,3 @@ async function run() {
         document.getElementById('stuff')!.appendChild(list);
 };
 run();
-
-type Product = {    name:string, 
-                    price:number, 
-                    sku:string, 
-                    path:string
-}
-type Cart = {
-    items:{data:Product, quantity:number}[]
-}
-
-function addProductToCart(c:Cart, p:Product){
-    for (const item of c.items) {
-        if (item.data.sku === p.sku) {
-            item.quantity++
-            return
-        }
-    }
-    c.items.push({data:p, quantity:1})
-}
-
-product = JSON.parse(resp) as Product[]
