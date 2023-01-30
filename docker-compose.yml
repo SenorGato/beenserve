@@ -17,7 +17,7 @@ services:
       unless-stopped
   beenserve:
     container_name: been_serve
-    image: bs69:latest
+    image: test-bs69:latest
     ports:
       - "9090:9090"
     restart:

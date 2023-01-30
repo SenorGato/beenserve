@@ -4,4 +4,4 @@ WORKDIR /beenserve
 COPY . .
 WORKDIR /beenserve/server/
 RUN go build
-#CD ["serve"]
+CMD ["./server"]

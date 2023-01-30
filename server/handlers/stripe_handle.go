@@ -18,13 +18,20 @@ type Checkout struct {
 	l *log.Logger
 }
 
+func NewCheckout(l *log.Logger) *Checkout {
+	return &Checkout{l}
+}
+
 type CheckoutData struct {
 	ClientSecret string
 }
 
-func NewCheckout(l *log.Logger) *Checkout {
-	return &Checkout{l}
+type paymentIntentCreateReq struct {
+	Currency          string `json:"currency"`
+	PaymentMethodType string `json:"paymentMethodType"`
 }
+
+type checkoutCart struct{}
 
 func (c *Checkout) PubKey(rw http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
@@ -38,11 +45,6 @@ func (c *Checkout) PubKey(rw http.ResponseWriter, r *http.Request) {
 	})
 }
 
-type paymentIntentCreateReq struct {
-	Currency          string `json:"currency"`
-	PaymentMethodType string `json:"paymentMethodType"`
-}
-
 func (c *Checkout) CreateCheckoutSession(rw http.ResponseWriter, r *http.Request) {
 	stripe.Key = os.Getenv("STRIPE_KEY")
 	checkoutTmpl, err := template.ParseFiles("./beenserve/client/html/checkout.html")
@@ -50,9 +52,7 @@ func (c *Checkout) CreateCheckoutSession(rw http.ResponseWriter, r *http.Request
 		panic(err)
 	}
 	req := paymentIntentCreateReq{}
-	fmt.Printf("request created:%s", req)
 	json.NewDecoder(r.Body).Decode(&req)
-	fmt.Printf("request created:%s", req)
 
 	params := &stripe.PaymentIntentParams{
 		Amount:             stripe.Int64(5999),
