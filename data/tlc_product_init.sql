@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS tealacarte.products (
     product_id  SERIAL PRIMARY KEY,
     name        TEXT,
     price       DECIMAL,
-    SKU         sku,
+    SKU         sku UNIQUE,
     path        TEXT,
     created_on  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
