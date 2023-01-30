@@ -31,7 +31,14 @@ type paymentIntentCreateReq struct {
 	PaymentMethodType string `json:"paymentMethodType"`
 }
 
-type checkoutCart struct{}
+type Cart struct {
+	Data     string
+	Quantity int
+}
+
+func (c *Checkout) RecieveCart(rw http.ResponseWriter, r *http.Request) {
+	// json.NewDecoder(r.Body).Decode(&req)
+}
 
 func (c *Checkout) PubKey(rw http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {

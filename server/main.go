@@ -46,6 +46,7 @@ func main() {
 	stripeCheckoutRouter := sm.Methods(http.MethodGet, http.MethodOptions).Subrouter()
 	stripeCheckoutRouter.HandleFunc("/checkout", ch.CreateCheckoutSession).Methods("GET", "POST")
 	stripeCheckoutRouter.HandleFunc("/stripe/pubkey", ch.PubKey).Methods("GET", "POST")
+	// stripeCheckoutRouter.HandleFunc("/shipcart")
 
 	// Static Files
 	fs := http.FileServer(http.Dir("../client"))
