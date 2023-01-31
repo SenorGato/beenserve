@@ -42,15 +42,15 @@ func main() {
 	// Database route
 	productRouter := sm.Methods(http.MethodGet).Subrouter()
 	productRouter.HandleFunc("/product-data", ph.GetProducts(conn))
-
+	// Stripe-API routes
 	stripeCheckoutRouter := sm.Methods(http.MethodGet, http.MethodOptions).Subrouter()
 	stripeCheckoutRouter.HandleFunc("/checkout", ch.CreateCheckoutSession).Methods("GET", "POST")
 	stripeCheckoutRouter.HandleFunc("/stripe/pubkey", ch.PubKey).Methods("GET", "POST")
-	// stripeCheckoutRouter.HandleFunc("/shipcart")
+	// stripeCheckoutRouter.HandleFunc("/shipcart", ch.RecieveCart)
 
 	// Static Files
-	fs := http.FileServer(http.Dir("../client"))
-	sm.PathPrefix("/").Handler(http.StripPrefix("/client", fs))
+	fs := http.FileServer(http.Dir("/go/bin/client"))
+	sm.PathPrefix("/").Handler(http.StripPrefix("/", fs))
 
 	s := http.Server{
 		Addr:         ":" + addr,

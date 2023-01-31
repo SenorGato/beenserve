@@ -37,7 +37,13 @@ type Cart struct {
 }
 
 func (c *Checkout) RecieveCart(rw http.ResponseWriter, r *http.Request) {
-	// json.NewDecoder(r.Body).Decode(&req)
+	var cart Cart
+	err := json.NewDecoder(r.Body).Decode(&cart)
+	if err != nil {
+		http.Error(rw, err.Error(), http.StatusBadRequest)
+		return
+	}
+	fmt.Fprintf(rw, "Cart: %+v", cart)
 }
 
 func (c *Checkout) PubKey(rw http.ResponseWriter, r *http.Request) {
