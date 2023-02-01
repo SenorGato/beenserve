@@ -7,9 +7,6 @@ COPY . ./beenserve
 WORKDIR /beenserve/server
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o /go/bin/server
 
-FROM scratch
-COPY --from=build-env /go/bin/server /go/bin/server
-COPY --from=build-env /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-WORKDIR /go/bin/
-COPY ./client/ ./client/
-ENTRYPOINT ["/go/bin/server"]
+COPY .env .
+COPY ./client/ ../client/
+ENTRYPOINT ["server"]

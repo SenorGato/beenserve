@@ -11,16 +11,11 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/jackc/pgx/v5"
-	"github.com/joho/godotenv"
 	"github.com/senorgato/beenserve/server/handlers"
 	"github.com/stripe/stripe-go/v74"
 )
 
 func main() {
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
 	stripe.Key = os.Getenv("STRIPE_KEY")
 	addr := os.Getenv("WEB_SERVER_PORT")
 
@@ -43,10 +38,10 @@ func main() {
 	productRouter := sm.Methods(http.MethodGet).Subrouter()
 	productRouter.HandleFunc("/product-data", ph.GetProducts(conn))
 	// Stripe-API routes
-	stripeCheckoutRouter := sm.Methods(http.MethodGet, http.MethodOptions).Subrouter()
-	stripeCheckoutRouter.HandleFunc("/checkout", ch.CreateCheckoutSession).Methods("GET", "POST")
+	stripeCheckoutRouter := sm.Methods(http.MethodGet, http.MethodPost, http.MethodOptions).Subrouter()
+	// stripeCheckoutRouter.HandleFunc("/checkout", ch.CreateCheckoutSession).Methods("GET", "POST")
 	stripeCheckoutRouter.HandleFunc("/stripe/pubkey", ch.PubKey).Methods("GET", "POST")
-	// stripeCheckoutRouter.HandleFunc("/shipcart", ch.RecieveCart)
+	stripeCheckoutRouter.HandleFunc("/shipcart", ch.RecieveCart).Methods("POST")
 
 	// Static Files
 	fs := http.FileServer(http.Dir("/go/bin/client"))

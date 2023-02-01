@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+while getopts 'cbr' OPTION; do
+    case "$OPTION" in
+        c)
+            docker compose down
+            ;;
+        b)
+            npx tsc
+            docker build -f Test_Env.Dockerfile . -t bs-69
+            ;;
+        r)
+            docker compose up -d
+            ;;
+        *)
+            echo "Invalid flag"
+            exit 1
+            ;;
+    esac
+done

@@ -1,6 +1,5 @@
 default.nix
 ./views/images*
-serve
 build*
 node_modules*
 env*

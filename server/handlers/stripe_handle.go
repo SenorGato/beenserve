@@ -36,36 +36,32 @@ type Cart struct {
 	Quantity int
 }
 
+//func (c *Checkout) calculateTotal(cart Cart) (cost int) {
+//for i, v := range cart{
+//c.l.Println("Index:%d Value:%+v", i, v)
+//}
+//return cost;
+//}
+
 func (c *Checkout) RecieveCart(rw http.ResponseWriter, r *http.Request) {
 	var cart Cart
+	c.l.Println("The cart has been recieved.")
 	err := json.NewDecoder(r.Body).Decode(&cart)
+	c.l.Println(r.Body)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusBadRequest)
 		return
 	}
-	fmt.Fprintf(rw, "Cart: %+v", cart)
-}
-
-func (c *Checkout) PubKey(rw http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
-		http.Error(rw, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
-		return
-	}
-	writeJSON(rw, struct {
-		PublishableKey string `json:"publishableKey"`
-	}{
-		PublishableKey: os.Getenv("STRIPE_PUBLISHABLE_KEY"),
-	})
-}
-
-func (c *Checkout) CreateCheckoutSession(rw http.ResponseWriter, r *http.Request) {
-	stripe.Key = os.Getenv("STRIPE_KEY")
-	checkoutTmpl, err := template.ParseFiles("./beenserve/client/html/checkout.html")
+	c.l.Println(os.Getenv("STRIPE_KEY"))
+	checkoutTmpl, err := template.ParseFiles("./client/html/checkout.html")
 	if err != nil {
 		panic(err)
 	}
-	req := paymentIntentCreateReq{}
-	json.NewDecoder(r.Body).Decode(&req)
+
+	stripe.Key = os.Getenv("STRIPE_KEY")
+	c.l.Println(stripe.Key)
+	// req := paymentIntentCreateReq{}
+	// json.NewDecoder(r.Body).Decode(&req)
 
 	params := &stripe.PaymentIntentParams{
 		Amount:             stripe.Int64(5999),
@@ -85,6 +81,19 @@ func (c *Checkout) CreateCheckoutSession(rw http.ResponseWriter, r *http.Request
 		ClientSecret: intent.ClientSecret,
 	}
 	checkoutTmpl.Execute(rw, data)
+	// fmt.Fprintf(rw, "Cart: %+v", cart)
+}
+
+func (c *Checkout) PubKey(rw http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		http.Error(rw, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+		return
+	}
+	writeJSON(rw, struct {
+		PublishableKey string `json:"publishableKey"`
+	}{
+		PublishableKey: os.Getenv("STRIPE_PUBLISHABLE_KEY"),
+	})
 }
 
 func writeJSON(w http.ResponseWriter, v interface{}) {
