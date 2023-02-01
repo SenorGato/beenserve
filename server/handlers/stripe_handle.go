@@ -47,19 +47,17 @@ func (c *Checkout) RecieveCart(rw http.ResponseWriter, r *http.Request) {
 	var cart Cart
 	c.l.Println("The cart has been recieved.")
 	err := json.NewDecoder(r.Body).Decode(&cart)
-	c.l.Println(r.Body)
+	c.l.Println(cart.Quantity)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusBadRequest)
 		return
 	}
-	c.l.Println(os.Getenv("STRIPE_KEY"))
 	checkoutTmpl, err := template.ParseFiles("./client/html/checkout.html")
 	if err != nil {
 		panic(err)
 	}
 
 	stripe.Key = os.Getenv("STRIPE_KEY")
-	c.l.Println(stripe.Key)
 	// req := paymentIntentCreateReq{}
 	// json.NewDecoder(r.Body).Decode(&req)
 

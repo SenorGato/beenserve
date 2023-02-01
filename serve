@@ -4,6 +4,7 @@ while getopts 'cbr' OPTION; do
     case "$OPTION" in
         c)
             docker compose down
+            docker rmi "$(docker images -f dangling=true -q)"
             ;;
         b)
             npx tsc

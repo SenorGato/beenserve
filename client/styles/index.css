@@ -1,2 +1,6 @@
 @import "reset.css";
 body {background-color: coral;}
+.content {
+  max-width: 500px;
+  margin: auto;
+}
