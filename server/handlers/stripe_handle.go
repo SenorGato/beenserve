@@ -26,28 +26,43 @@ type CheckoutData struct {
 	ClientSecret string
 }
 
-type paymentIntentCreateReq struct {
-	Currency          string `json:"currency"`
-	PaymentMethodType string `json:"paymentMethodType"`
-}
-
 type Cart struct {
-	Data     string
-	Quantity int
+	Items []Item `json:"items,omitempty"`
+}
+type Item struct {
+	Data     Prod    `json:"data,omitempty"`
+	Quantity float32 `json:"quantity,omitempty"`
+}
+type Prod struct {
+	Price      float32 `json:"price,omitempty"`
+	Sku        string  `json:"sku,omitempty"`
+	Name       string  `json:"name,omitempty"`
+	Image_path string  `json:"image_path,omitempty"`
 }
 
-//func (c *Checkout) calculateTotal(cart Cart) (cost int) {
-//for i, v := range cart{
-//c.l.Println("Index:%d Value:%+v", i, v)
-//}
-//return cost;
-//}
+type Tester struct {
+	Name []Test_Two `json:"name"`
+}
+
+type Test_Two struct {
+	Data     Prod    `json:"data,omitempty"`
+	Quantity float32 `json:"quantity,omitempty"`
+}
 
 func (c *Checkout) RecieveCart(rw http.ResponseWriter, r *http.Request) {
 	var cart Cart
+	// var test Tester
 	c.l.Println("The cart has been recieved.")
+	// body, err := io.ReadAll(r.Body)
+	// myString := string(body[:])
+	// c.l.Println(myString)
+	// c.l.Println(cart.Quantity)
+	// json_body := json.Unmarshal(body, &cart)
+	// c.l.Println(json_body)
+	// c.l.Println(json.Unmarshal(body, &cart))
+	// c.l.Println(cart.Data.Price)
 	err := json.NewDecoder(r.Body).Decode(&cart)
-	c.l.Println(cart.Quantity)
+	c.l.Println(cart)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusBadRequest)
 		return
@@ -58,8 +73,6 @@ func (c *Checkout) RecieveCart(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	stripe.Key = os.Getenv("STRIPE_KEY")
-	// req := paymentIntentCreateReq{}
-	// json.NewDecoder(r.Body).Decode(&req)
 
 	params := &stripe.PaymentIntentParams{
 		Amount:             stripe.Int64(5999),
@@ -107,3 +120,10 @@ func writeJSON(w http.ResponseWriter, v interface{}) {
 		return
 	}
 }
+
+//func (c *Checkout) calculateTotal(cart Cart) (cost int) {
+//for i, v := range cart{
+//c.l.Println("Index:%d Value:%+v", i, v)
+//}
+//return cost;
+//}

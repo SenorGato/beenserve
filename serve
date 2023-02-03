@@ -4,10 +4,11 @@ while getopts 'cbr' OPTION; do
     case "$OPTION" in
         c)
             docker compose down
-            docker rmi "$(docker images -f dangling=true -q)"
+            docker rmi $(docker images -f dangling=true -q)
             ;;
         b)
             npx tsc
+            docker build -f Test_Env.Dockerfile . --target build-env -t bs-69/buildenv
             docker build -f Test_Env.Dockerfile . -t bs-69
             ;;
         r)

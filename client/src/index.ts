@@ -42,19 +42,16 @@ function createButtons(c:Cart, p:Product, div: HTMLElement){
 }
 
 function addProductToCart(c:Cart, p:Product){
-    console.log(`before ${c}`)
-    const itemToAdd= c.items.find(item => item.data.sku === p.sku)
+    const itemToAdd = c.items.find(item => item.data.sku === p.sku)
     if (itemToAdd) {
         itemToAdd.quantity++
     } else {
         c.items.push({data:p, quantity:1})
     }
     updateCart(c)
-    console.log(`after ${c}`)
 }
 
 function removeProductFromCart(c:Cart, p:Product){
-    console.log(`before remove ${c}`)
     const itemToRemove = c.items.find(item => item.data.sku === p.sku)
     if (itemToRemove) {
         itemToRemove.quantity--
@@ -63,18 +60,13 @@ function removeProductFromCart(c:Cart, p:Product){
         }
     }
     updateCart(c)
-    console.log(`after remove ${c}`)
 }
 
 function updateCart(c:Cart) {
-    console.log("In updateCart")
-    console.log(c.items.length)
-    const cart_element = document.getElementById("shopping-cart") 
-    cart_element!.innerHTML = ""
-    for (let i=0; i < c.items.length; i++) {
-        const item = c.items[i];
-        console.log(`$${item.data.price} ${item.data.name} quant:${item.quantity}`)
-    }
+    const cart_element = document.getElementById("shopping-cart") as HTMLInputElement
+    cart_element.innerHTML = c.items.map(item => `$${item.data.price} ${item.data.name} quant:${item.quantity}`).join("<br>")
+    cart_element.innerHTML += "<br>Cart Total: "
+    cart_element.innerHTML += c.items.reduce((acc, each) => acc+each.data.price * each.quantity, 0)
 }
 
 async function shipCart(c:Cart) {
@@ -91,8 +83,6 @@ async function shipCart(c:Cart) {
     referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
     body: JSON.stringify(c) // body data type must match "Content-Type" header
   });
-    //const client_key = await resp.json() as string;
-    console.log(JSON.stringify(c))
 };
 
 async function run() {
@@ -104,9 +94,9 @@ async function run() {
     shipIt.onclick = () => {shipCart(shopping_cart)}
     document.body.appendChild(shipIt)
 
-    for (let x in product_json) {
-        const div: HTMLElement = displayProduct(product_json[x])
-        createButtons(shopping_cart, product_json[x], div)
+    for (let product in product_json) {
+        const div: HTMLElement = displayProduct(product_json[product])
+        createButtons(shopping_cart, product_json[product], div)
         div.appendChild(document.createElement("br"))
     }
 };

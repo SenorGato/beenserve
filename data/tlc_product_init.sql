@@ -36,8 +36,8 @@ CREATE TABLE IF NOT EXISTS tealacarte.products (
     updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE VIEW frontend_view as 
-SELECT product_id, name, price, path
+CREATE VIEW frontend as 
+SELECT product_id, name, price, path, SKU
 FROM products;
 
 CREATE OR REPLACE TRIGGER Set_timestamp
