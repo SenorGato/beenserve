@@ -23,7 +23,7 @@ func main() {
 	checkout_log := log.New(os.Stdout, "Checkout:", log.LstdFlags)
 	server_log := log.New(os.Stdout, "Server:", log.LstdFlags)
 
-	conn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
+	db_conn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
 		os.Exit(1)
@@ -36,12 +36,11 @@ func main() {
 
 	// Database route
 	productRouter := sm.Methods(http.MethodGet).Subrouter()
-	productRouter.HandleFunc("/product-data", ph.GetProducts(conn))
+	productRouter.HandleFunc("/product-data", ph.GetProducts(db_conn))
 	// Stripe-API routes
-	stripeCheckoutRouter := sm.Methods(http.MethodGet, http.MethodPost, http.MethodOptions).Subrouter()
-	// stripeCheckoutRouter.HandleFunc("/checkout", ch.CreateCheckoutSession).Methods("GET", "POST")
+	stripeCheckoutRouter := sm.Methods(http.MethodGet, http.MethodPost).Subrouter()
 	stripeCheckoutRouter.HandleFunc("/stripe/pubkey", ch.PubKey).Methods("GET", "POST")
-	stripeCheckoutRouter.HandleFunc("/shipcart", ch.RecieveCart).Methods("POST")
+	stripeCheckoutRouter.HandleFunc("/shipcart", ch.RecieveCart(db_conn)).Methods("POST")
 
 	// Static Files
 	fs := http.FileServer(http.Dir("/go/bin/client"))
