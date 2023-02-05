@@ -1,3 +1,5 @@
+import {loadStripe} from '@stripe/stripe-js';
+
 type Product = {    
     name:string, 
     price:number, 
@@ -13,6 +15,14 @@ async function fetchProducts() {
     const response = await fetch('/product-data');
     const products = await response.json() as Product[];
     return products;
+}
+
+async function fetchPublishableKey() {
+        const {publishableKey} = await fetch('/stripe/pubkey').then((r) => r.json());
+        if (!publishableKey) {
+            alert('Please set your Stripe publishable API key in the .env file');
+        } 
+        return publishableKey
 }
 
 function displayProduct(p: Product):HTMLElement {
@@ -69,8 +79,21 @@ function updateCart(c:Cart) {
     cart_element.innerHTML += c.items.reduce((acc, each) => acc+each.data.price * each.quantity, 0)
 }
 
+async function mountPaymentDiv(json: any) {
+    var pKey = await fetchPublishableKey()
+    const stripe = await loadStripe(pKey);
+    const options = {
+        clientSecret: json.client_secret,
+    };
+    const elements = stripe!.elements(options);
+    const paymentElement = elements.create('payment');
+    paymentElement.mount('#payment-element');
+    var e:any
+    document.querySelector("#payment-form")!.addEventListener("submit", () => handleSubmit(e, stripe, elements))
+}
+
 async function shipCart(c:Cart) {
-  const resp = await fetch('/shipcart', {
+    fetch('/shipcart', {
     method: 'POST', // *GET, POST, PUT, DELETE, etc.
     mode: 'same-origin', // no-cors, *cors, same-origin
     cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
@@ -82,15 +105,42 @@ async function shipCart(c:Cart) {
     redirect: 'follow', // manual, *follow, error
     referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
     body: JSON.stringify(c) // body data type must match "Content-Type" header
-  });
+  }).then((response) => response.json())
+  .then((data) => mountPaymentDiv(data))
 };
+
+async function handleSubmit(e:any, stripe:any, ele:any) {
+    e.preventDefault();
+    //setLoading(true);
+
+    const { error } = await stripe.confirmPayment({
+        ele,
+        confirmParams: {
+            returl_url: "http://localhost:9090/checkout.html"
+        },
+    });
+    //setLoading(false);
+}
+
+//function setLoading(isLoading) {
+    //if (isLoading) {
+        //document.querySelector("#submit")!.disabled = true;
+        //document.querySelector("#spinner")!.classList.remove("hidden")
+        //document.querySelector("button-text")!.classList.add("hidden")
+    //} else {
+        //document.querySelector("#submit")!.disabled = false;
+        //document.querySelector("#spinner")!.classList.add("hidden")
+        //document.querySelector("button-text")!.classList.remove("hidden")
+    //}
+//}
 
 async function run() {
     let shopping_cart: Cart = {items:[]} 
     let product_json = await fetchProducts()
 
+
     let shipIt = document.createElement("button")
-    shipIt.textContent = 'LETS GO!';
+    shipIt.textContent = 'LETS GO(SHIP)!';
     shipIt.onclick = () => {shipCart(shopping_cart)}
     document.body.appendChild(shipIt)
 

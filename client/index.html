@@ -9,8 +9,17 @@
     </head>
     <body id="body">
         <div id="shopping-cart"></div>
+        <form id="payment-form">
+          <div id="payment-element">
+            <!-- Elements will create form elements here -->
+          </div>
+          <button id="submit">
+            <div class="spinner hidden" id="spinner"></div>
+            <span id="button-text">PAY!</span>
+          </button>
+        </form>
         <script src="https://js.stripe.com/v3/"></script>
-        <script src="./build/index.js"></script>
+        <script src="./build/bundle.js"></script>
     </body>
 </html>
 

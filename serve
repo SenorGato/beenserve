@@ -7,7 +7,7 @@ while getopts 'cbr' OPTION; do
             docker rmi $(docker images -f dangling=true -q)
             ;;
         b)
-            npx tsc
+            npm run build 
             docker build -f Test_Env.Dockerfile . --target build-env -t bs-69/buildenv
             docker build -f Test_Env.Dockerfile . -t bs-69
             ;;

@@ -1,21 +1,10 @@
-//require {loadStripe} from '@stripe/stripe-js';
-//import * as Stripe from '@stripe/stripe-js';
 import {loadStripe} from '@stripe/stripe-js';
-//import {loadStripe} from "https://js.stripe.com/v3/";
 
-const addMessage = (message:string) => {
-    const messagesDiv = document.querySelector('#error-message');
-    messagesDiv!.innerHTML += ">" + message + '<br>';
-    console.log('StripeSampleDebug:', message);
-    }
 
 document.addEventListener('DOMContentLoaded', async () => {
     
     const {publishableKey} = await fetch('/stripe/pubkey').then((r) => r.json());
     if (!publishableKey) {
-    addMessage(
-      'No publishable key returned from the server. Please check `.env` and try again'
-    );
     alert('Please set your Stripe publishable API key in the .env file');
     } 
     

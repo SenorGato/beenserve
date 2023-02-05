@@ -9,7 +9,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"text/template"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/stripe/stripe-go/v74"
@@ -25,7 +24,7 @@ func NewCheckout(l *log.Logger) *Checkout {
 }
 
 type CheckoutData struct {
-	ClientSecret string
+	ClientSecret string `json:"client_secret"`
 }
 
 type Cart struct {
@@ -75,12 +74,6 @@ func (c *Checkout) RecieveCart(db_conn *pgx.Conn) func(rw http.ResponseWriter, r
 			return
 		}
 		cartTotal := c.CalculateTotal(db_conn, cart)
-
-		checkoutTmpl, err := template.ParseFiles("./client/html/checkout.html")
-		if err != nil {
-			panic(err)
-		}
-
 		params := &stripe.PaymentIntentParams{
 			Amount:             stripe.Int64(cartTotal * 100),
 			Currency:           stripe.String("usd"),
@@ -88,6 +81,13 @@ func (c *Checkout) RecieveCart(db_conn *pgx.Conn) func(rw http.ResponseWriter, r
 		}
 
 		intent, err := paymentintent.New(params)
+		// c.l.Println(intent)
+		data := CheckoutData{
+			ClientSecret: intent.ClientSecret,
+		}
+		rw.Header().Set("Content-Type", "application/json")
+		// rw.WriteHeader(http.StatusOK)
+		json.NewEncoder(rw).Encode(data)
 		if err != nil {
 			if stripeErr, ok := err.(*stripe.Error); ok {
 				fmt.Printf("Other Stripe error occurred: %v\n", stripeErr.Error())
@@ -96,10 +96,6 @@ func (c *Checkout) RecieveCart(db_conn *pgx.Conn) func(rw http.ResponseWriter, r
 			}
 			return
 		}
-		data := CheckoutData{
-			ClientSecret: intent.ClientSecret,
-		}
-		checkoutTmpl.Execute(rw, data)
 	}
 }
 
