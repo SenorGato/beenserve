@@ -1,0 +1,16 @@
+---
+version: '3.8'
+services:
+  users_db:
+    container_name: user_auth
+    image: postgres:15.1
+    environment:
+      PGPORT: "7342"
+      POSTGRES_USER: "userauth"
+      POSTGRES_PASSWORD: "insecure"
+    volumes:
+      - ./data/user_auth_init.sql:/docker-entrypoint-initdb.d/001_init.sql
+    ports:
+      - "7342:7342"
+    restart:
+      unless-stopped
