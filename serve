@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+while getopts 'cbr' OPTION; do
+    case "$OPTION" in
+        c)
+            docker compose down
+            docker rmi $(docker images -f dangling=true -q)
+            ;;
+        b)
+            npm run build 
+            docker build . -t bs-admin-69
+            ;;
+        r)
+            docker compose up -d
+            ;;
+        *)
+            echo "Invalid flag"
+            exit 1
+            ;;
+    esac
+done

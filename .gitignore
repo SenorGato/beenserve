@@ -1,0 +1,7 @@
+default.nix
+./views/images*
+build*
+node_modules*
+env*
+*.env
+server/server

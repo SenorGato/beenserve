@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Register</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!--<link href="../styles/register.css" rel="stylesheet">-->
+    </head>
+    <body>
+        <form id="register">
+            <label for="uname">Username:</label>
+            <input type="text" id="uname" name="uname"><br>
+            <label for="email">Email:</label>
+            <input type="email" id="email"
+            pattern=".+@.+\.com" size="30" required><br>
+            <label for="pass">Password:</label>
+            <input type="password" id="pass" name="password"
+            minlength="8" required>
+            <input type="password" placeholder="Confirm Password" id="confirm_password" required><br>
+
+            <label for="api-key">Stripe API key:</label>
+            <input type="text" id="api-key" name="api-key"><br>
+            <label for="test-api-key">Test Stripe API key:</label>
+            <input type="text" id="test-api-key" name="test-api-key"><br>
+            <input type="submit" value="Submit">
+        </form> 
+        <script src="../build/bundle.js"></script>
+    </body>
+</html>

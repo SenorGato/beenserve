@@ -11,6 +11,23 @@ services:
     volumes:
       - ./data/user_auth_init.sql:/docker-entrypoint-initdb.d/001_init.sql
     ports:
-      - "7342:7342"
+      - "5433:5433"
+    restart:
+      unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 1s
+      timeout: 10s
+      retries: 8
+
+  beenserve-admin:
+    container_name: been_serve_admin
+    image: bs-admin-69:latest
+    depends_on:
+      users_db:
+        condition: service_healthy
+    #environment:
+    ports:
+      - "9091:9091"
     restart:
       unless-stopped
