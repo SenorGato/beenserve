@@ -27,7 +27,6 @@ $$ LANGUAGE plpgsql;
 CREATE TABLE IF NOT EXISTS userauth.users(
     email       email PRIMARY KEY,
     name        TEXT,
-    salt varchar,
     pass_hash varchar,
     api_hash varchar,
     test_api_hash varchar,

@@ -2,32 +2,37 @@
 version: '3.8'
 services:
   users_db:
-    container_name: user_auth
+    container_name: usersDb
     image: postgres:15.1
     environment:
-      PGPORT: "7342"
-      POSTGRES_USER: "userauth"
-      POSTGRES_PASSWORD: "insecure"
+      PGPORT: "${DATABASE_PORT}"
+      POSTGRES_USER: "${POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
     volumes:
-      - ./data/user_auth_init.sql:/docker-entrypoint-initdb.d/001_init.sql
+      - ./data/${PRODUCT_DATABASE_INIT}:/docker-entrypoint-initdb.d/001_init.sql
     ports:
-      - "5433:5433"
+      - "${DATABASE_PORT}:${DATABASE_PORT}"
     restart:
       unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready"]
+      test: ["CMD-SHELL", "pg_isready -d ${POSTGRES_USER} -U userauth"]
       interval: 1s
       timeout: 10s
       retries: 8
 
-  beenserve-admin:
+  beenserve:
     container_name: been_serve_admin
     image: bs-admin-69:latest
     depends_on:
       users_db:
         condition: service_healthy
-    #environment:
+    environment:
+      DATABASE_URL: "${DATABASE_URL}"
+      STRIPE_KEY: "${STRIPE_KEY}"
+      STRIPE_PUBLISHABLE_KEY: "${STRIPE_PUBLISHABLE_KEY}"
+      WEB_SERVER_PORT: "${WEB_SERVER_PORT}"
+
     ports:
-      - "9091:9091"
+      - "${WEB_SERVER_PORT}:${WEB_SERVER_PORT}"
     restart:
       unless-stopped

@@ -10,12 +10,28 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/jackc/pgx/v5"
+	"github.com/senorgato/beenserve-admin/server/handlers"
 )
 
 func main() {
 	fmt.Println("Hack the planet!")
 	server_log := log.New(os.Stdout, "Server:", log.LstdFlags)
+
+	user_log := log.New(os.Stdout, "User:", log.LstdFlags)
+
+	db_conn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
+		os.Exit(1)
+	}
+
 	sm := mux.NewRouter()
+
+	user_handler := handlers.NewUser(user_log)
+
+	userRouter := sm.Methods(http.MethodPost).Subrouter()
+	userRouter.HandleFunc("/register", user_handler.CreateUser(db_conn))
 
 	fs := http.FileServer(http.Dir("/go/bin/client"))
 	sm.PathPrefix("/").Handler(http.StripPrefix("/", fs))
