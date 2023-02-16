@@ -12,12 +12,11 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/jackc/pgx/v5"
 	"github.com/senorgato/beenserve-admin/server/handlers"
+	"github.com/senorgato/beenserve-admin/server/middleware"
 )
 
 func main() {
-	fmt.Println("Hack the planet!")
 	server_log := log.New(os.Stdout, "Server:", log.LstdFlags)
-
 	user_log := log.New(os.Stdout, "User:", log.LstdFlags)
 
 	db_conn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
@@ -32,6 +31,7 @@ func main() {
 
 	userRouter := sm.Methods(http.MethodPost).Subrouter()
 	userRouter.HandleFunc("/register", user_handler.CreateUser(db_conn))
+	userRouter.HandleFunc("/login", middleware.HandleLogin(db_conn))
 
 	fs := http.FileServer(http.Dir("/go/bin/client"))
 	sm.PathPrefix("/").Handler(http.StripPrefix("/", fs))
@@ -53,7 +53,6 @@ func main() {
 			os.Exit(1)
 		}
 	}()
-
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 	signal.Notify(c, os.Kill)

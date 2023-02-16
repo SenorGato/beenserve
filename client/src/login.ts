@@ -1,5 +1,17 @@
-async function postUserData(reg_form_data:any) {
-    fetch('/register', {
+function login_run(){
+    const form = document.querySelector('#login');
+    form!.addEventListener('submit', handleLoginSubmit);
+}
+
+function handleLoginSubmit(event: any) {
+    event.preventDefault();
+    const data = new FormData(event.target);
+    const value = Object.fromEntries(data.entries());
+    postLoginData(value);
+}
+
+function postLoginData(login_form_data:any) {
+    fetch('/login', {
     method: 'POST', // *GET, POST, PUT, DELETE, etc.
     mode: 'same-origin', // no-cors, *cors, same-origin
     cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
@@ -10,20 +22,8 @@ async function postUserData(reg_form_data:any) {
     },
     redirect: 'follow', // manual, *follow, error
     referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-    body: JSON.stringify(reg_form_data) // body data type must match "Content-Type" header
+    body: JSON.stringify(login_form_data) // body data type must match "Content-Type" header
   })
 };
 
-function handleFormSubmit(event: any) {
-    event.preventDefault();
-    console.log("In handler")
-    const data = new FormData(event.target);
-    const value = Object.fromEntries(data.entries());
-    postUserData(value)
-}
-
-function run(){
-    const form = document.querySelector('#register');
-    form!.addEventListener('submit', handleFormSubmit);
-}
-run();
+login_run();

@@ -15,12 +15,13 @@ services:
     restart:
       unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -d ${POSTGRES_USER} -U userauth"]
+      test: ["CMD-SHELL",
+             "pg_isready -d ${POSTGRES_USER} -U ${POSTGRES_USER}"]
       interval: 1s
       timeout: 10s
       retries: 8
 
-  beenserve:
+  beenserve-admin:
     container_name: been_serve_admin
     image: bs-admin-69:latest
     depends_on:
@@ -34,5 +35,29 @@ services:
 
     ports:
       - "${WEB_SERVER_PORT}:${WEB_SERVER_PORT}"
+    restart:
+      unless-stopped
+  log_db:
+    container_name: log_db
+    image: postgres:15.1
+    environment:
+      PGPORT: "${LOG_DB_PORT}"
+      POSTGRES_USER: "logdb"
+      POSTGRES_PASSWORD: "test123"
+    volumes:
+      - ./data/${LOG_DB_INIT}:/docker-entrypoint-initdb.d/001_init.sql
+    ports:
+      - "${LOG_DB_PORT}:${LOG_DB_PORT}"
+    restart:
+      unless-stopped
+  session_db:
+    container_name: session_db
+    image: postgres:15.1
+    environment:
+      PGPORT: "${SESSION_DB_PORT}"
+      POSTGRES_USER: "sessiondb"
+      POSTGRES_PASSWORD: "test123"
+    ports:
+      - "${SESSION_DB_PORT}:${SESSION_DB_PORT}"
     restart:
       unless-stopped
