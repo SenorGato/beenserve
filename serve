@@ -7,7 +7,7 @@ while getopts 'cbr' OPTION; do
             docker rmi $(docker images -f dangling=true -q)
             ;;
         b)
-            npx tsc
+            npx webpack
             docker build . -t bs-admin-69
             ;;
         r)

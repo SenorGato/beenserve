@@ -1,7 +1,13 @@
 const path = require('path');
 
 module.exports = {
-  entry: './client/src/index.ts',
+    target: 'es5',
+    mode: 'development',
+    entry: {
+      index: './client/src/index.ts',
+      register: './client/src/register.ts',
+      login: './client/src/login.ts'
+  },
     devtool: 'inline-source-map',
   module: {
     rules: [
@@ -13,11 +19,18 @@ module.exports = {
     ],
   },
   resolve: {
+    fallback: {
+        "crypto": require.resolve("crypto-browserify"),
+        "stream": require.resolve("stream-browserify"),
+        "util": require.resolve("util-promisify/"),
+        "timers": require.resolve("timers-browserify")
+    },
     extensions: ['.tsx', '.ts', '.js'],
   },
   output: {
-    filename: 'bundle.js',
+    filename: '[name].js',
     path: path.resolve(__dirname, './client/build'),
+    chunkFormat: 'module',
     clean: true,
   },
   devServer: {

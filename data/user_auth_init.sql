@@ -16,25 +16,17 @@ BEGIN
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION trigger_set_modify_timestamp()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = NOW();
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
 CREATE TABLE IF NOT EXISTS userauth.users(
-    email       email PRIMARY KEY,
-    name        TEXT,
-    pass_hash varchar,
-    api_hash varchar,
-    test_api_hash varchar,
-    created_on  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    email           email PRIMARY KEY,
+    name            TEXT,
+    pass_hash       varchar,
+    api_hash        varchar,
+    test_api_hash   varchar,
+    created_on  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE OR REPLACE TRIGGER Set_timestamp
-BEFORE UPDATE ON userauth.users
-FOR EACH ROW
-EXECUTE PROCEDURE trigger_set_modify_timestamp();
+CREATE TABLE IF NOT EXISTS userauth.sessions(
+    session_key TEXT PRIMARY KEY,
+    username        TEXT,
+    created_on TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);

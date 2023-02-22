@@ -1,3 +1,4 @@
+import bcrypt from 'bcryptjs';
 async function postUserData(reg_form_data:any) {
     fetch('/register', {
     method: 'POST', // *GET, POST, PUT, DELETE, etc.
@@ -14,12 +15,27 @@ async function postUserData(reg_form_data:any) {
   })
 };
 
+async function hashRegisterForm(reg_form_data: any) {
+    const saltRounds = 10;
+    const pass_salt = await bcrypt.genSalt(saltRounds);
+    const api_salt= await bcrypt.genSalt(saltRounds);
+    const test_api_salt = await bcrypt.genSalt(saltRounds);
+
+    reg_form_data.password = await bcrypt.hash(reg_form_data.password, pass_salt);
+    reg_form_data.api_key = await bcrypt.hash(reg_form_data.api_key, api_salt);
+    reg_form_data.test_api_key = await bcrypt.hash(reg_form_data.test_api_key, test_api_salt);
+
+    console.log(reg_form_data)
+    return reg_form_data;
+}
+
 function handleFormSubmit(event: any) {
     event.preventDefault();
     console.log("In handler")
     const data = new FormData(event.target);
     const value = Object.fromEntries(data.entries());
-    postUserData(value)
+    const hashedForm = hashRegisterForm(value)
+    postUserData(hashedForm)
 }
 
 function run(){

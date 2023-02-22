@@ -50,14 +50,3 @@ services:
       - "${LOG_DB_PORT}:${LOG_DB_PORT}"
     restart:
       unless-stopped
-  session_db:
-    container_name: session_db
-    image: postgres:15.1
-    environment:
-      PGPORT: "${SESSION_DB_PORT}"
-      POSTGRES_USER: "sessiondb"
-      POSTGRES_PASSWORD: "test123"
-    ports:
-      - "${SESSION_DB_PORT}:${SESSION_DB_PORT}"
-    restart:
-      unless-stopped

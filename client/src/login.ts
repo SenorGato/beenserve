@@ -11,6 +11,7 @@ function handleLoginSubmit(event: any) {
 }
 
 function postLoginData(login_form_data:any) {
+    console.log("In head of postLoginData")
     fetch('/login', {
     method: 'POST', // *GET, POST, PUT, DELETE, etc.
     mode: 'same-origin', // no-cors, *cors, same-origin

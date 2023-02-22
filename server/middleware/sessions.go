@@ -5,12 +5,85 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"net/http"
 
-	"github.com/jackc/pgx"
+	"github.com/jackc/pgx/v5"
 	"golang.org/x/crypto/bcrypt"
 )
+
+type PasswordHash struct {
+	hash string
+}
+
+func HandleLogin(db_conn *pgx.Conn) func(rw http.ResponseWriter, r *http.Request) {
+	if db_conn == nil {
+		panic("Nil db_conn in CreateUser")
+	}
+	return func(rw http.ResponseWriter, r *http.Request) {
+		var loginRequest struct {
+			Username string `json:"username"`
+			Password string `json:"password"`
+		}
+		err := json.NewDecoder(r.Body).Decode(&loginRequest)
+		if err != nil {
+			http.Error(rw, err.Error(), http.StatusBadRequest)
+			return
+		}
+		hashedPassword, err := getHashedPassword(db_conn, loginRequest.Username, loginRequest.Password)
+		if err != nil {
+			http.Error(rw, "Invalid username or password", http.StatusUnauthorized)
+			return
+		}
+		err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(loginRequest.Password))
+		if err != nil {
+			http.Error(rw, "Invalid username or password", http.StatusUnauthorized)
+			return
+		}
+		sessionId, err := generateSessionToken(db_conn, loginRequest.Username)
+		if err != nil {
+			http.Error(rw, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		writeSessionToDb(sessionId, loginRequest.Username, db_conn)
+		http.SetCookie(rw, &http.Cookie{
+			Name:     "session_id",
+			Value:    sessionId,
+			HttpOnly: true,
+			Secure:   true,
+		})
+		// Return a success response to the front end
+		rw.WriteHeader(http.StatusOK)
+		rw.Write([]byte("Login successful"))
+	}
+}
+
+func writeSessionToDb(sessionId string, username string, db_conn *pgx.Conn) {
+	_, err := db_conn.Exec(context.Background(), "INSERT INTO sessions (session_key, user) VALUES($1, $2)", sessionId, username)
+	if err != nil {
+		panic("DB conn failed in writeSessionToDb")
+	}
+}
+
+func getHashedPassword(db_conn *pgx.Conn, password string, user string) (string, error) {
+	rows, err := db_conn.Query(context.Background(), "SELECT $1 FROM users WHERE username = $2",
+		password, user)
+	defer rows.Close()
+	results, err := pgx.CollectRows(rows, pgx.RowToStructByPos[PasswordHash])
+	return results[0].hash, err
+}
+
+func generateSessionToken(db_conn *pgx.Conn, username string) (string, error) {
+	// Generate a random byte slice to use as the session token
+	tokenBytes := make([]byte, 32)
+	if _, err := rand.Read(tokenBytes); err != nil {
+		return "", err
+	}
+
+	// Encode the byte slice as a base64 string to create the session token
+	token := base64.URLEncoding.EncodeToString(tokenBytes)
+
+	return token, nil
+}
 
 func cookieAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
@@ -40,72 +113,6 @@ func isValidSession(sessionID string) bool {
 		}
 	}
 	return false
-}
-
-func HandleLogin(db_conn *pgx.Conn) func(rw http.ResponseWriter, r *http.Request) {
-	if db_conn == nil {
-		panic("Nil db_conn in CreateUser")
-	}
-	return func(rw http.ResponseWriter, r *http.Request) {
-		fmt.Println("In handle login")
-		var loginRequest struct {
-			Username string `json:"username"`
-			Password string `json:"password"`
-		}
-		err := json.NewDecoder(r.Body).Decode(&loginRequest)
-		if err != nil {
-			http.Error(rw, err.Error(), http.StatusBadRequest)
-			return
-		}
-		// Query the database to retrieve the hashed password for the user
-		hashedPassword, err := getHashedPassword(db_conn, loginRequest.Username, loginRequest.Password)
-		if err != nil {
-			http.Error(rw, "Invalid username or password", http.StatusUnauthorized)
-			return
-		}
-		// Hash the plaintext password provided in the login request and compare it to the hashed password in the database
-		err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(loginRequest.Password))
-		if err != nil {
-			http.Error(rw, "Invalid username or password", http.StatusUnauthorized)
-			return
-		}
-		// If the passwords match, generate a new session token
-		sessionID, err := generateSessionToken(db_conn, loginRequest.Username)
-		if err != nil {
-			http.Error(rw, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		// Set the session ID cookie in the response header
-		http.SetCookie(rw, &http.Cookie{
-			Name:     "session_id",
-			Value:    sessionID,
-			HttpOnly: true,
-			Secure:   true,
-		})
-		// Return a success response to the front end
-		rw.WriteHeader(http.StatusOK)
-		rw.Write([]byte("Login successful"))
-	}
-}
-
-func getHashedPassword(db_conn *pgx.Conn, password string, user string) (string, error) {
-	hash, err := db_conn.Query(context.Background(), "SELECT $1 FROM users WHERE username = $2",
-		password, user)
-	fmt.Println(hash)
-	return hash, err
-}
-
-func generateSessionToken(db_conn *pgx.Conn, username string) (string, error) {
-	// Generate a random byte slice to use as the session token
-	tokenBytes := make([]byte, 32)
-	if _, err := rand.Read(tokenBytes); err != nil {
-		return "", err
-	}
-
-	// Encode the byte slice as a base64 string to create the session token
-	token := base64.URLEncoding.EncodeToString(tokenBytes)
-
-	return token, nil
 }
 
 // Recieve the password

@@ -31,6 +31,7 @@ func (u *Users) CreateUser(db_conn *pgx.Conn) func(rw http.ResponseWriter, r *ht
 		panic("Nil db_conn in CreateUser")
 	}
 	return func(rw http.ResponseWriter, r *http.Request) {
+		u.l.Println("At head of CreateUser call")
 		if r.Method != "POST" {
 			http.Error(rw, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 			return
@@ -47,6 +48,7 @@ func (u *Users) CreateUser(db_conn *pgx.Conn) func(rw http.ResponseWriter, r *ht
 		if err != nil {
 			panic("Bcrypt hash failed")
 		}
+		u.l.Println("Just before the insert")
 		_, err = db_conn.Exec(context.Background(), "INSERT INTO users VALUES($1, $2, $3, $4, $5)",
 			user.Email, user.Username, hash, apihash, testapihash)
 		if err != nil {
