@@ -11,10 +11,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type PasswordHash struct {
-	hash string
-}
-
 func HandleLogin(db_conn *pgx.Conn) func(rw http.ResponseWriter, r *http.Request) {
 	if db_conn == nil {
 		panic("Nil db_conn in CreateUser")
@@ -29,7 +25,7 @@ func HandleLogin(db_conn *pgx.Conn) func(rw http.ResponseWriter, r *http.Request
 			http.Error(rw, err.Error(), http.StatusBadRequest)
 			return
 		}
-		hashedPassword, err := getHashedPassword(db_conn, loginRequest.Username, loginRequest.Password)
+		hashedPassword, err := getHashedPassword(db_conn, loginRequest.Username)
 		if err != nil {
 			http.Error(rw, "Invalid username or password", http.StatusUnauthorized)
 			return
@@ -64,12 +60,10 @@ func writeSessionToDb(sessionId string, username string, db_conn *pgx.Conn) {
 	}
 }
 
-func getHashedPassword(db_conn *pgx.Conn, password string, user string) (string, error) {
-	rows, err := db_conn.Query(context.Background(), "SELECT $1 FROM users WHERE username = $2",
-		password, user)
-	defer rows.Close()
-	results, err := pgx.CollectRows(rows, pgx.RowToStructByPos[PasswordHash])
-	return results[0].hash, err
+func getHashedPassword(db_conn *pgx.Conn, user string) (string, error) {
+	var passHash string
+	err := db_conn.QueryRow(context.Background(), "SELECT password_hash FROM users WHERE username = $1", user).Scan(&passHash)
+	return passHash, err
 }
 
 func generateSessionToken(db_conn *pgx.Conn, username string) (string, error) {
@@ -114,9 +108,3 @@ func isValidSession(sessionID string) bool {
 	}
 	return false
 }
-
-// Recieve the password
-// Compare the password with the user pass hash in the DB
-// If true then issue session token
-// Store in cookie and ship to frontend
-// Must re-add cookie to all headers sent to backend

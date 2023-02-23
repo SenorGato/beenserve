@@ -8,6 +8,7 @@ services:
       PGPORT: "${DATABASE_PORT}"
       POSTGRES_USER: "${POSTGRES_USER}"
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+    user: "1000:100"
     volumes:
       - ./data/${PRODUCT_DATABASE_INIT}:/docker-entrypoint-initdb.d/001_init.sql
       - ./data/user_db_data:/var/lib/postgresql/data
@@ -45,6 +46,7 @@ services:
       PGPORT: "${LOG_DB_PORT}"
       POSTGRES_USER: "logdb"
       POSTGRES_PASSWORD: "test123"
+    user: "1000:100"
     volumes:
       - ./data/${LOG_DB_INIT}:/docker-entrypoint-initdb.d/001_init.sql
       - ./data/log_db_data:/var/lib/postgresql/data

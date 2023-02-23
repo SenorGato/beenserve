@@ -6,7 +6,7 @@ module.exports = {
     entry: {
       index: './client/src/index.ts',
       register: './client/src/register.ts',
-      login: './client/src/login.ts'
+      login: './client/src/login.ts',
   },
     devtool: 'inline-source-map',
   module: {
