@@ -10,6 +10,7 @@ services:
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
     volumes:
       - ./data/${PRODUCT_DATABASE_INIT}:/docker-entrypoint-initdb.d/001_init.sql
+      - ./data/user_db_data:/var/lib/postgresql/data
     ports:
       - "${DATABASE_PORT}:${DATABASE_PORT}"
     restart:
@@ -46,6 +47,7 @@ services:
       POSTGRES_PASSWORD: "test123"
     volumes:
       - ./data/${LOG_DB_INIT}:/docker-entrypoint-initdb.d/001_init.sql
+      - ./data/log_db_data:/var/lib/postgresql/data
     ports:
       - "${LOG_DB_PORT}:${LOG_DB_PORT}"
     restart:

@@ -7,12 +7,11 @@ import (
 	"net/http"
 
 	"github.com/jackc/pgx/v5"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type User struct {
-	Email      string `json:"email,omitempty"`
 	Username   string `json:"username,omitempty"`
+	Email      string `json:"email,omitempty"`
 	Password   string `json:"password,omitempty"`
 	ApiKey     string `json:"api_key,omitempty"`
 	TestApiKey string `json:"test_api_key,omitempty"`
@@ -31,7 +30,6 @@ func (u *Users) CreateUser(db_conn *pgx.Conn) func(rw http.ResponseWriter, r *ht
 		panic("Nil db_conn in CreateUser")
 	}
 	return func(rw http.ResponseWriter, r *http.Request) {
-		u.l.Println("At head of CreateUser call")
 		if r.Method != "POST" {
 			http.Error(rw, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 			return
@@ -42,15 +40,11 @@ func (u *Users) CreateUser(db_conn *pgx.Conn) func(rw http.ResponseWriter, r *ht
 			http.Error(rw, err.Error(), http.StatusBadRequest)
 			return
 		}
-		hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.MinCost)
-		apihash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.MinCost)
-		testapihash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.MinCost)
 		if err != nil {
 			panic("Bcrypt hash failed")
 		}
-		u.l.Println("Just before the insert")
 		_, err = db_conn.Exec(context.Background(), "INSERT INTO users VALUES($1, $2, $3, $4, $5)",
-			user.Email, user.Username, hash, apihash, testapihash)
+			user.Email, user.Username, user.Password, user.ApiKey, user.TestApiKey)
 		if err != nil {
 			return
 		}

@@ -5,3 +5,5 @@ node_modules*
 env*
 *.env
 server/server
+data/user_db_data/
+data/log_db_data/
