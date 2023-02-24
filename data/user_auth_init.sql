@@ -18,15 +18,15 @@ $$;
 
 CREATE TABLE IF NOT EXISTS userauth.users(
     email           email PRIMARY KEY,
-    name            TEXT,
+    username        TEXT UNIQUE,
     pass_hash       varchar,
     api_hash        varchar,
     test_api_hash   varchar,
-    created_on  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    created_on      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS userauth.sessions(
-    session_key TEXT PRIMARY KEY,
-    username        TEXT,
-    created_on TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    session_id TEXT PRIMARY KEY,
+    username    TEXT REFERENCES userauth.users(username),
+    created_on  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
