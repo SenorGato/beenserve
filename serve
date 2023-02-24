@@ -8,8 +8,8 @@ while getopts 'cbr' OPTION; do
             ;;
         b)
             npm run build 
-            docker build -f Test_Env.Dockerfile . --target build-env -t bs-69/buildenv
-            docker build -f Test_Env.Dockerfile . -t bs-69
+            docker build -f Test_Env.Dockerfile . -t bs-69-client
+            docker build -f Admin_Env.Dockerfile . -t bs-69-admin
             ;;
         r)
             docker compose up -d

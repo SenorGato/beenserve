@@ -6,6 +6,7 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/jackc/pgx/v5 v5.2.0
 	github.com/stripe/stripe-go/v74 v74.6.0
+    golang.org/x/crypto v0.6.0
 )
 
 require (

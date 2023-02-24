@@ -22,6 +22,7 @@ func main() {
 	product_log := log.New(os.Stdout, "Products:", log.LstdFlags)
 	checkout_log := log.New(os.Stdout, "Checkout:", log.LstdFlags)
 	server_log := log.New(os.Stdout, "Server:", log.LstdFlags)
+	user_log := log.New(os.Stdout, "User:", log.LstdFlags)
 
 	db_conn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
 	if err != nil {
@@ -45,6 +46,19 @@ func main() {
 	// Static Files
 	fs := http.FileServer(http.Dir("/go/bin/client"))
 	sm.PathPrefix("/").Handler(http.StripPrefix("/", fs))
+
+	userHandler := handlers.NewUser(user_log)
+
+	userRouter := sm.Methods(http.MethodPost).Subrouter()
+	userRouter.HandleFunc("/register", userHandler.CreateUser(db_conn))
+	userRouter.HandleFunc("/login", userHandler.HandleLogin(db_conn))
+
+	protectedHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("You have access to the protected resource."))
+	})
+	protectedRoute := sm.Path("/protected").Subrouter()
+	protectedRoute.Use(middleware.CookieAuth(db_conn))
+	protectedRoute.Methods(http.MethodGet).Handler(protectedHandler)
 
 	s := http.Server{
 		Addr:         ":" + addr,

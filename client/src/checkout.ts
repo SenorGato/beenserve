@@ -1,6 +1,5 @@
 import {loadStripe} from '@stripe/stripe-js';
 
-
 document.addEventListener('DOMContentLoaded', async () => {
     
     const {publishableKey} = await fetch('/stripe/pubkey').then((r) => r.json());

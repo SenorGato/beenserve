@@ -79,7 +79,7 @@ function updateCart(c:Cart) {
     cart_element.innerHTML += c.items.reduce((acc, each) => acc+each.data.price * each.quantity, 0)
 }
 
-async function mountPaymentDiv(json: any) {
+async function mountPaymentDiv(json: any, ) {
     var pKey = await fetchPublishableKey()
     const stripe = await loadStripe(pKey);
     const options = {
@@ -89,7 +89,7 @@ async function mountPaymentDiv(json: any) {
     const paymentElement = elements.create('payment');
     paymentElement.mount('#payment-element');
     var e:any
-    document.querySelector("#payment-form")!.addEventListener("submit", () => handleSubmit(e, stripe, elements))
+    document.querySelector("#payment-form")!.addEventListener("submit", () => handleSubmit(e, stripe, elements, json.client_secret))
 }
 
 async function shipCart(c:Cart) {
@@ -109,18 +109,51 @@ async function shipCart(c:Cart) {
   .then((data) => mountPaymentDiv(data))
 };
 
-async function handleSubmit(e:any, stripe:any, ele:any) {
+async function handleSubmit(e:any, stripe:any, ele:any, c_key:any) {
     e.preventDefault();
     //setLoading(true);
+    //stripe
+      //.createPaymentMethod({
+        //type: 'card',
+        //card: ele,
+        //billing_details: {
+          //name: 'Jenny Rosen',
+        //},
+      //})
+  //.then(function(result) {
+    //// Handle result.error or result.paymentMethod
+  //});
+    //
+    
+ stripe
+  .confirmCardPayment(c_key, {
+    payment_method: {
+      card: ele,
+      billing_details: {
+        name: 'Jenny Rosen',
+      },
+    },
+  })
+  .then(function(result:any) {
+      console.log(result)
+  });   
+    
 
-    const { error } = await stripe.confirmPayment({
-        ele,
-        confirmParams: {
-            returl_url: "http://localhost:9090/checkout.html"
-        },
-    });
+    //const { error }:any = await stripe.confirmCardPayment({
+        //ele,
+        //confirmParams: {
+            //returl_url: "http://localhost:9090/checkout.html"
+        //},
+    //}).then(function(error:any) {
+        //if (error.error) {
+            //console.log(error)
+        //}
+    //});
+
     //setLoading(false);
 }
+
+
 
 //function setLoading(isLoading) {
     //if (isLoading) {

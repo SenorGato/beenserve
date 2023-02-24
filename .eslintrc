@@ -1,0 +1,15 @@
+{
+    "plugins": ["prettier"],
+    "parser": "babel-eslint",
+    "extends": ["prettier"],
+    "rules": {
+        "prettier/prettier": "error"
+    },
+    "parserOptions": {
+        "sourceType": "module",
+        "ecmaVersion": 6,
+        "ecmaFeatures": {
+            "experimentalObjectRestSpread": true
+        }
+    }
+}

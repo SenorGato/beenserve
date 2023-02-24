@@ -12,7 +12,8 @@ GRANT ALL PRIVILEGES ON DATABASE tealacarte TO tealacarte;
 
 DO $$
 BEGIN
-    CREATE DOMAIN sku AS TEXT CHECK (VALUE ~* '^[A-Za-z0-9]{13}$');
+    CREATE DOMAIN sku AS TEXT
+    CHECK (VALUE ~* '^[A-Za-z0-9]{13}$');
     EXCEPTION WHEN duplicate_object THEN 
         RAISE NOTICE 'domain sku already exists';
 END;

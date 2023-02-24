@@ -1,7 +1,14 @@
 const path = require('path');
 
 module.exports = {
-  entry: './client/src/index.ts',
+    target: 'es5',
+    mode: 'development',
+    entry: {
+      index: './client/src/index.ts',
+      register: './client/src/register.ts',
+      login: './client/src/login.ts',
+      checkout: './client/src/checkout.ts',
+  },
     devtool: 'inline-source-map',
   module: {
     rules: [
@@ -16,8 +23,10 @@ module.exports = {
     extensions: ['.tsx', '.ts', '.js'],
   },
   output: {
-    filename: 'bundle.js',
+    filename: '[name].js',
     path: path.resolve(__dirname, './client/build'),
+    chunkFormat: 'module',
+    clean: true,
   },
   devServer: {
     static: path.join(__dirname, "dist"),

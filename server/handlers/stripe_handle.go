@@ -73,11 +73,15 @@ func (c *Checkout) RecieveCart(db_conn *pgx.Conn) func(rw http.ResponseWriter, r
 			http.Error(rw, err.Error(), http.StatusBadRequest)
 			return
 		}
-		cartTotal := c.CalculateTotal(db_conn, cart)
+		// cartTotal := c.CalculateTotal(db_conn, cart)
 		params := &stripe.PaymentIntentParams{
-			Amount:             stripe.Int64(cartTotal * 100),
-			Currency:           stripe.String("usd"),
-			PaymentMethodTypes: stripe.StringSlice([]string{"card"}),
+			// Amount:             stripe.Int64(cartTotal * 100),
+			Amount:   stripe.Int64(100),
+			Currency: stripe.String("usd"),
+			// PaymentMethodTypes: stripe.StringSlice([]string{"card"}),
+			AutomaticPaymentMethods: &stripe.PaymentIntentAutomaticPaymentMethodsParams{
+				Enabled: stripe.Bool(true),
+			},
 		}
 
 		intent, err := paymentintent.New(params)
