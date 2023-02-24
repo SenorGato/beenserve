@@ -27,11 +27,18 @@ func main() {
 
 	sm := mux.NewRouter()
 
-	user_handler := handlers.NewUser(user_log)
+	userHandler := handlers.NewUser(user_log)
 
 	userRouter := sm.Methods(http.MethodPost).Subrouter()
-	userRouter.HandleFunc("/register", user_handler.CreateUser(db_conn))
-	userRouter.HandleFunc("/login", middleware.HandleLogin(db_conn))
+	userRouter.HandleFunc("/register", userHandler.CreateUser(db_conn))
+	userRouter.HandleFunc("/login", userHandler.HandleLogin(db_conn))
+
+	protectedHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("You have access to the protected resource."))
+	})
+	protectedRoute := sm.Path("/protected").Subrouter()
+	protectedRoute.Use(middleware.CookieAuth(db_conn))
+	protectedRoute.Methods(http.MethodGet).Handler(protectedHandler)
 
 	fs := http.FileServer(http.Dir("/go/bin/client"))
 	sm.PathPrefix("/").Handler(http.StripPrefix("/", fs))
